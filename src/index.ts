@@ -31,7 +31,7 @@ const argv = yargs
       describe: 'HTTP Port',
       type: 'number',
       requiresArg: true,
-      default: process.env.PORT || 4000,
+      default: process.env.PORT || 9002,
     },
     'open': {
       alias: 'o',

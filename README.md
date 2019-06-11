@@ -69,7 +69,7 @@ Extend real data from GitHub API with faked data based on extension IDL (you can
 
 ### Options
 
- * `-p`, `--port`          HTTP Port [default: `env.PORT` or `4000`]
+ * `-p`, `--port`          HTTP Port [default: `env.PORT` or `9002`]
  * `-e`, `--extend`        URL to existing GraphQL server to extend
  * `-o`, `--open`          Open page with IDL editor and GraphiQL in browser
  * `-H`, `--header`        Specify headers to the proxied server in cURL format, e.g.: `Authorization: bearer XXXXXXXXX`
@@ -88,7 +88,7 @@ graphql-faker --forward-headers Authorition --extend http://example.com/graphql 
 
 ### Usage with Docker
 
-    docker run -p=4000:4000 apisguru/graphql-faker [options] [IDL file]
+    docker run -p=9002:9002 apisguru/graphql-faker [options] [IDL file]
 
 To specify a custom file, mount a volume where the file is located to `/workdir`:
 
