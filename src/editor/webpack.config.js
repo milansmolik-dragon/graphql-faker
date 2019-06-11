@@ -18,8 +18,8 @@ module.exports = {
     port: 9090,
     stats: 'errors-only',
     proxy: {
-      '/user-idl': 'http://localhost:9002',
-      '/graphql': 'http://localhost:9002',
+      '/user-idl': 'http://localhost:4000',
+      '/graphql': 'http://localhost:4000',
     },
   },
   resolve: {
