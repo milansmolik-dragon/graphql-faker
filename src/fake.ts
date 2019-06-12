@@ -122,7 +122,10 @@ const fakeFunctions = {
       return (dateFormat !== undefined ? moment(date).format(dateFormat) : date)
     }
   },
-
+  error: {
+    args: ['error'],
+    func: (error) => new Error(error)
+  },
   // Finance section
   financeAccountName: () => faker.finance.accountName(),
   //TODO: investigate finance.mask
