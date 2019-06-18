@@ -12,7 +12,7 @@ import * as path from 'path';
 import * as express from 'express';
 import * as graphqlHTTP from 'express-graphql';
 import chalk from 'chalk';
-import * as opn from 'opn';
+//import * as opn from 'opn';
 import * as cors from 'cors';
 import * as bodyParser from 'body-parser';
 import { pick } from 'lodash';
@@ -139,7 +139,8 @@ function saveIDL(idl) {
   return new Source(idl, fileName);
 }
 
-if (argv.e) {
+// if (argv.e) {
+if (false) {
   // run in proxy mode
   const url = argv.e;
   proxyMiddleware(url, headers)
@@ -151,7 +152,7 @@ if (argv.e) {
       log(chalk.red(error.stack));
       process.exit(1);
     });
-} else {
+//} else {
   runServer(userIDL, null, schema => {
     fakeSchema(schema)
     return {schema};
@@ -163,9 +164,9 @@ function buildServerSchema(idl) {
   return buildASTSchema(ast);
 }
 
-function runServer(schemaIDL: Source, extensionIDL: Source, optionsCB) {
+function runServer(schemaIDL: Source, extensionIDL: Source = null, optionsCB) {
   const app = express();
-
+  //const schemaIDL = readIDL(fileName)
   if (extensionIDL) {
     const schema = buildServerSchema(schemaIDL);
     extensionIDL.body = extensionIDL.body.replace('<RootTypeName>', schema.getQueryType().name);
@@ -204,32 +205,17 @@ function runServer(schemaIDL: Source, extensionIDL: Source, optionsCB) {
 
   app.use('/editor', express.static(path.join(__dirname, 'editor')));
 
-  const server = app.listen(argv.port);
+  return app.listen(argv.port);
 
-  const shutdown = () => {
-    server.close();
-    process.exit(0);
-  };
-
-  process.on('SIGINT', shutdown);
-  process.on('SIGTERM', shutdown);
-
-  log(`
-
-  ${chalk.blue('❯')} Interactive Editor:\t http://localhost:${argv.port}/editor
-  ${chalk.blue('❯')} GraphQL API:\t http://localhost:${argv.port}/graphql
-
-  `);
-
-  if (argv.open) {
-    setTimeout(() => opn(`http://localhost:${argv.port}/editor`), 500);
-  }
+  
 }
 
-const mockServer
-mockServer.runServer = runServer(userIDL, null, schema => {
+
+export const server = {
+  run: function (fileName) {
+    const userIDL = readIDL(fileName);
+    return runServer(userIDL, null, schema => {
     fakeSchema(schema)
     return {schema};
-  });
-
-export mockServer
+  })}
+}

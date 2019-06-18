@@ -1,9 +1,8 @@
 {
   "name": "graphql-faker-sampled",
-  "version": "1.8.6",
+  "version": "1.8.5",
   "description": "Mock or extend your GraphQL API with faked data. No coding required",
   "main": "dist/index.js",
-  "bin": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon -e ts --exec 'ts-node src/index.ts'",
