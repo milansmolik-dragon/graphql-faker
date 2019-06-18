@@ -216,8 +216,7 @@ function runServer(schemaIDL: Source, extensionIDL: Source, optionsCB) {
   process.on('SIGINT', shutdown);
   process.on('SIGTERM', shutdown);
 
-  log(`\n${chalk.green('✔')} Your GraphQL Fake API is ready to use 🚀
-  Here are your links:
+  log(`
 
   ${chalk.blue('❯')} Interactive Editor:\t http://localhost:${argv.port}/editor
   ${chalk.blue('❯')} GraphQL API:\t http://localhost:${argv.port}/graphql
@@ -228,3 +227,11 @@ function runServer(schemaIDL: Source, extensionIDL: Source, optionsCB) {
     setTimeout(() => opn(`http://localhost:${argv.port}/editor`), 500);
   }
 }
+
+const mockServer
+mockServer.runServer = runServer(userIDL, null, schema => {
+    fakeSchema(schema)
+    return {schema};
+  });
+
+export mockServer
