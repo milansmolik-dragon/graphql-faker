@@ -7,7 +7,7 @@ import {
   buildASTSchema,
   GraphQLError,
 } from 'graphql';
-
+const { ApolloServer, gql } = require ('apollo-server')
 import * as fs from 'fs';
 import * as path from 'path';
 import * as express from 'express';
@@ -185,65 +185,18 @@ class customError extends Error {
 }
 
 function runServer(schemaIDL: Source, error: String = null, extensionIDL: Source = null, optionsCB) {
-  const app = express();
-  //const schemaIDL = readIDL(fileName)
-  if (extensionIDL) {
-    const schema = buildServerSchema(schemaIDL);
-    extensionIDL.body = extensionIDL.body.replace('<RootTypeName>', schema.getQueryType().name);
-  }
-  app.options('/graphql', cors(corsOptions))
-    const errorName = formatError.errorName
+  const root = {Mutation: {makeTransfer: (args) => new GraphQLError('ERR_PAY_013')},}
+  let schema = buildServerSchema(schemaIDL);
+  fakeSchema(schema)
 
-  const root = {makeTransfer: new GraphQLError('ERR_PAY_013'),}
-
-  app.use('/graphql',  graphqlHTTP((req, res )=> {
-    let schema = buildServerSchema(schemaIDL);
-    fakeSchema(schema)
-    return {
+  const server = new ApolloServer ({
       schema,
-      rootValue: root,
-      graphiql: true,
-      context: { errorName },
-      formatError: (err) => {
-        console.log(err)
-        return err
-      }
-    };
+      resolvers: root,
   })
-  );
-
-  app.get('/user-idl', (_, res) => {
-    res.status(200).json({
-      schemaIDL: schemaIDL.body,
-      extensionIDL: extensionIDL && extensionIDL.body,
-    });
-  });
-
-  app.use('/graphql', graphqlHTTP({
-   schema: buildServerSchema(schemaIDL),
-   graphiql: true
-  }))
-
-  app.use('/user-idl', bodyParser.text({limit: '8mb'}));
-
-  app.post('/user-idl', (req, res) => {
-    try {
-      if (extensionIDL === null)
-        schemaIDL = saveIDL(req.body);
-      else
-        extensionIDL = saveIDL(req.body);
-
-      res.status(200).send('ok');
-    } catch(err) {
-      res.status(500).send(err.message)
-    }
-  });
-
-  app.use('/editor', express.static(path.join(__dirname, 'editor')));
-
-  return app.listen(argv.port);
-
   
+  server.listen().then(({ url }) =>{ 
+  console.log(`Server started, listening on ${url}`)})
+
 }
 
 
