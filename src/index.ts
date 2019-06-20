@@ -5,6 +5,7 @@ import {
   parse,
   concatAST,
   buildASTSchema,
+  GraphQLError,
 } from 'graphql';
 
 import * as fs from 'fs';
@@ -17,6 +18,8 @@ import * as cors from 'cors';
 import * as bodyParser from 'body-parser';
 import { pick } from 'lodash';
 import * as yargs from 'yargs';
+import * as cJSON from 'circular-json'
+import * as FormatError from 'easygraphql-format-error'
 
 import { fakeSchema } from './fake_schema';
 import { proxyMiddleware } from './proxy';
@@ -146,14 +149,14 @@ if (false) {
   proxyMiddleware(url, headers)
     .then(([schemaIDL, cb]) => {
       schemaIDL = new Source(schemaIDL, `Inrospection from "${url}"`);
-      runServer(schemaIDL, userIDL, cb)
+      runServer(schemaIDL, null, userIDL, cb)
     })
     .catch(error => {
       log(chalk.red(error.stack));
       process.exit(1);
     });
 //} else {
-  runServer(userIDL, null, schema => {
+  runServer(userIDL,null, null, schema => {
     fakeSchema(schema)
     return {schema};
   });
@@ -164,7 +167,24 @@ function buildServerSchema(idl) {
   return buildASTSchema(ast);
 }
 
-function runServer(schemaIDL: Source, extensionIDL: Source = null, optionsCB) {
+const formatError = new FormatError ([
+  {
+    name: 'ERR_PAY_013',
+    errorCode: 'ERR_PAY_013',
+    message: 'Panic!',
+    statusCode: 400,
+  }
+])
+class customError extends Error {
+  statusCode: number
+  constructor (name: string, statusCode: number, message?: string) {
+    super(message)
+    this.name = name
+    this.statusCode = statusCode
+  }
+}
+
+function runServer(schemaIDL: Source, error: String = null, extensionIDL: Source = null, optionsCB) {
   const app = express();
   //const schemaIDL = readIDL(fileName)
   if (extensionIDL) {
@@ -172,14 +192,25 @@ function runServer(schemaIDL: Source, extensionIDL: Source = null, optionsCB) {
     extensionIDL.body = extensionIDL.body.replace('<RootTypeName>', schema.getQueryType().name);
   }
   app.options('/graphql', cors(corsOptions))
-  app.use('/graphql', cors(corsOptions), graphqlHTTP(req => {
-    const schema = buildServerSchema(schemaIDL);
-    const forwardHeaders = pick(req.headers, forwardHeaderNames);
+    const errorName = formatError.errorName
+
+  const root = {makeTransfer: new GraphQLError('ERR_PAY_013'),}
+
+  app.use('/graphql',  graphqlHTTP((req, res )=> {
+    let schema = buildServerSchema(schemaIDL);
+    fakeSchema(schema)
     return {
-      ...optionsCB(schema, extensionIDL, forwardHeaders),
+      schema,
+      rootValue: root,
       graphiql: true,
+      context: { errorName },
+      formatError: (err) => {
+        console.log(err)
+        return err
+      }
     };
-  }));
+  })
+  );
 
   app.get('/user-idl', (_, res) => {
     res.status(200).json({
@@ -187,6 +218,11 @@ function runServer(schemaIDL: Source, extensionIDL: Source = null, optionsCB) {
       extensionIDL: extensionIDL && extensionIDL.body,
     });
   });
+
+  app.use('/graphql', graphqlHTTP({
+   schema: buildServerSchema(schemaIDL),
+   graphiql: true
+  }))
 
   app.use('/user-idl', bodyParser.text({limit: '8mb'}));
 
@@ -214,7 +250,7 @@ function runServer(schemaIDL: Source, extensionIDL: Source = null, optionsCB) {
 export const server = {
   run: function (fileName) {
     const userIDL = readIDL(fileName);
-    return runServer(userIDL, null, schema => {
+    return runServer(userIDL, null, null, schema => {
     fakeSchema(schema)
     return {schema};
   })}

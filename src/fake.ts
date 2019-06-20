@@ -10,6 +10,17 @@ export function getRandomItem(array:any[]) {
   return array[getRandomInt(0, array.length - 1)];
 }
 
+class customError extends Error {
+  statusCode: number
+  constructor (name: string, statusCode: number, message?: string) {
+    super(message)
+    this.name = name
+    this.statusCode = statusCode
+  }
+}
+
+
+
 export const typeFakers = {
   'Int': {
     defaultOptions: {min: 0, max: 99999},
@@ -123,8 +134,8 @@ const fakeFunctions = {
     }
   },
   error: {
-    args: ['error'],
-    func: (error) => new Error(error)
+    args: ['name', 'code', 'message'],
+    func: (name, code = 400, message = 'Panic!') => {throw new customError(name, code, message)}
   },
   // Finance section
   financeAccountName: () => faker.finance.accountName(),
