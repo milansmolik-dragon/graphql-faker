@@ -13,7 +13,8 @@ import * as path from 'path';
 import * as express from 'express';
 import * as graphqlHTTP from 'express-graphql';
 import chalk from 'chalk';
-//import * as opn from 'opn';
+import { addMockFunctionsToSchema,   introspectSchema,
+mergeSchemas, TransformRootFields} from 'graphql-tools';
 import * as cors from 'cors';
 import * as bodyParser from 'body-parser';
 import { pick } from 'lodash';
@@ -102,12 +103,6 @@ const fileName = argv.file || (argv.extend ?
   './schema_extension.faker.graphql' :
   './schema.faker.graphql');
 
-
-if (!argv.file) {
-  log(chalk.yellow(`Default file ${chalk.magenta(fileName)} is used. ` +
-  `Specify [file] parameter to change.`));
-}
-
 const fakeDefinitionAST = readAST(path.join(__dirname, 'fake_definition.graphql'));
 const corsOptions = {}
 
@@ -177,44 +172,39 @@ const formatError = new FormatError ([
 ])
 class customError extends Error {
   statusCode: number
+  errorCode: string
   constructor (name: string, statusCode: number, message?: string) {
     super(message)
     this.name = name
+    this.errorCode = name
     this.statusCode = statusCode
   }
 }
-
-function runServer(schemaIDL: Source, error: String = null, extensionIDL: Source = null, optionsCB) {
+let service
+function runServer(schemaIDL: Source, port: number, extensionIDL: Source, optionsCB) {
   const app = express();
-  //const schemaIDL = readIDL(fileName)
-  if (extensionIDL) {
-    const schema = buildServerSchema(schemaIDL);
-    extensionIDL.body = extensionIDL.body.replace('<RootTypeName>', schema.getQueryType().name);
-  }
-  app.options('/graphql', cors(corsOptions))
-    const errorName = formatError.errorName
+  app.options('', cors(corsOptions))
+  const schema = buildServerSchema(schemaIDL);
 
-  const root = {makeTransfer: new GraphQLError('ERR_PAY_013'),}
-
-  app.use('/graphql', cors(corsOptions), graphqlHTTP(req => {
-    const schema = buildServerSchema(schemaIDL);
+  app.use('', cors(corsOptions), graphqlHTTP(req => {
     const forwardHeaders = pick(req.headers, forwardHeaderNames);
     return {
       ...optionsCB(schema, extensionIDL, forwardHeaders),
       graphiql: true,
     };
-}));
-  return app.listen(argv.port);
-
+  }));
+  console.log('Mock server running!')
   
+  return app.listen(port);
 }
 
 
 export const server = {
-  run: function (fileName) {
+  run: function (fileName, port = 4000) {
+    console.log(`Mocking schema at ${fileName}`)
     const userIDL = readIDL(fileName);
-    return runServer(userIDL, null, null, schema => {
+    return runServer(userIDL, port, null, schema => {
     fakeSchema(schema)
     return {schema};
-  })}
+  })},
 }

@@ -1,6 +1,6 @@
 {
   "name": "graphql-faker-sampled",
-  "version": "1.9.0",
+  "version": "1.9.3",
   "description": "Mock or extend your GraphQL API with faked data. No coding required",
   "main": "dist/index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "start": "nodemon -e ts --exec 'ts-node src/index.ts'",
     "debug": "ts-node --inspect --compilerOptions '{\"inlineSources\":true}' src/index.ts",
     "build:editor": "cd src/editor && yarn && npm run build && cd -",
-    "build:typescript": "tsc",
+    "build:typescript": "tsc --skipLibCheck",
     "copy:graphql": "cp src/*.graphql dist/",
     "copy:editor": "mkdir -p dist/editor && cp src/editor/*.{html,js,css,svg} dist/editor",
     "build:all": "npm run build:editor && npm run build:typescript && npm run copy:graphql && npm run copy:editor"
@@ -25,7 +25,7 @@
     "@types/express": "4.16.0",
     "@types/express-graphql": "0.6.1",
     "@types/faker": "4.1.3",
-    "@types/graphql": "0.11.4",
+    "@types/graphql": "^0.11.8",
     "@types/lodash": "4.14.116",
     "@types/yargs": "11.1.1",
     "nodemon": "1.18.3",
@@ -33,6 +33,9 @@
     "typescript": "3.0.1"
   },
   "dependencies": {
+    "apollo-client": "^2.6.3",
+    "apollo-link": "^1.2.12",
+    "apollo-link-dedup": "^1.0.19",
     "body-parser": "1.18.3",
     "chalk": "2.4.1",
     "circular-json": "^0.5.9",
@@ -43,11 +46,14 @@
     "express-graphql": "github:apis-guru/express-graphql#rootValue_dist",
     "faker": "4.1.0",
     "graphql": "github:apis-guru/graphql-js#directives-fork-dist",
-    "graphql-yoga": "^1.18.0",
-    "lodash": "4.17.10",
+    "graphql-tools": "^4.0.4",
+    "lodash": "^4.17.11",
     "moment": "2.22.2",
     "node-fetch": "2.2.0",
-    "opn": "5.3.0",
     "yargs": "12.0.1"
+  },
+  "resolutions": {
+    "apollo-link-dedup": "^1.0.13",
+    "@types/graphql": "^14.0.0"
   }
 }
