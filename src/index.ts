@@ -140,7 +140,9 @@ function runServer(
   return app.listen(port);
 }
 
-export const server = {
+var server
+const fakeServer = {
+
   run: function(mockSchema, port = 4000) {
     let source = new Source(
       mockSchema
@@ -149,9 +151,18 @@ export const server = {
         .replace(/directive @sample *\n/, ""),
       `./temp.graphql`
     );
-    return runServer(source, port, null, schema => {
+    server = runServer(source, port, null, schema => {
       fakeSchema(schema);
       return { schema };
     });
+  },
+
+  getServer: function() {
+    return server
+  },
+
+  close: function() {
+    server.close()
   }
 };
+export default fakeServer
