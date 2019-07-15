@@ -124,6 +124,7 @@ function runServer(
   app.options("", cors(corsOptions));
   const schema = buildServerSchema(schemaIDL);
 
+    console.log(schema)
   app.use(
     "",
     cors(corsOptions),
