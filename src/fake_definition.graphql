@@ -202,4 +202,4 @@ directive @fake(type:fake__Types!, options: fake__options = {}, locale:fake__Loc
 directive @sample(min: Int!, max: Int!) on FIELD_DEFINITION | SCALAR
 
 scalar examples__JSON
-directive @examples(values: [examples__JSON]!) on FIELD_DEFINITION | SCALAR
+directive @examples(values: [examples__JSON], type: String) on FIELD_DEFINITION | SCALAR
