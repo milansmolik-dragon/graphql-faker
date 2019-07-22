@@ -15,12 +15,8 @@ export const stdScalarFakers = {
   'Float': () => faker.random.number({ min: 0, max: 99999, precision: 0.01 }),
   'String': () => 'string',
   'Boolean': () => faker.random.boolean(),
-  'ID': () => toBase64(faker.random.number({max: 9999999999}).toString()),
+  'ID': () => faker.random.uuid(),
 };
-
-function toBase64(str) {
-  return (new Buffer(str)).toString('base64');
-}
 
 const fakeFunctions = {
   // Address section
