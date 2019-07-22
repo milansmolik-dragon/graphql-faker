@@ -31,8 +31,9 @@ type ExamplesArgs = {
   type: any;
 };
 type SampleArgs = {
-  min: number;
-  max: number;
+  min?: number;
+  max?: number;
+  size?: number;
 };
 type DirectiveArgs = {
   fake?: FakeArgs;
@@ -189,7 +190,11 @@ function arrayResolver(itemResolver, { sample }: DirectiveArgs) {
     options.max = ++options.min;
   }
   return (...args) => {
-    let length = getRandomInt(options.min, options.max);
+    let length;
+    options.size
+      ? (length = options.size)
+      : (length = getRandomInt(options.min, options.max));
+
     const result = [];
 
     while (length-- !== 0) result.push(itemResolver(...args));
